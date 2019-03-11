@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import datetime
 import os
+from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser
 from logging import DEBUG, INFO, basicConfig, getLogger
 
@@ -16,7 +17,7 @@ from urllib3.exceptions import InsecureRequestWarning
 from .setting import APIKEY, ENDPOINT, VERIFY
 
 
-class ActivityList(object):
+class ActivityList(metaclass=ABCMeta):
     def __init__(self, endpoint=None, apikey=None, verify=True):
         self.endpoint = endpoint
         self.apikey = apikey
@@ -30,6 +31,7 @@ class ActivityList(object):
 
         return Redmine(self.endpoint, key=self.apikey, requests={"verify": self.verify})
 
+    @abstractmethod
     def today(self):
         raise NotImplementedError
 
@@ -60,10 +62,7 @@ class ActivityIssueList(ActivityList):
 def main():
     meta = {"endpoint": ENDPOINT, "apikey": APIKEY, "verify": VERIFY}
 
-    params = {
-        # "limit": 10,
-        # "sort": "updated_on:desc"
-    }
+    params = {"sort": "updated_on:desc"}
 
     ail = ActivityIssueList(**meta)
     for l in ail.today(**params):
